@@ -1,0 +1,4 @@
+-- Optional: quick demo roles (replace ids with your auth user IDs)
+-- update profiles set role='stake-leader' where id='YOUR_AUTH_USER_UUID';
+-- insert into user_unit_roles(user_id, unit_id, role)
+-- values ('YOUR_AUTH_USER_UUID','domboramwari-branch','stake-leader');

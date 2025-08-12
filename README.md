@@ -1,178 +1,48 @@
-# Zion Track - Church Leadership Dashboard
+# Overview
 
-A comprehensive church leadership dashboard with role-based access control, built with Next.js, Supabase, and TypeScript.
+As a software engineer, I built ZionTrack to deepen my understanding of full-stack web development, cloud database integration, and role-based authentication systems. This project challenged me to implement complex user permission systems, server-side rendering, and robust error handling in a real-world application context.
 
-## 🚀 Features
+ZionTrack is a comprehensive church leadership dashboard that integrates with Supabase (PostgreSQL) cloud database to provide role-based access control for church administrators. The application features three distinct user roles: Viewers (read-only access), Unit Leaders (manage specific church units), and Stake Leaders (full administrative access to all units). Users can authenticate securely, manage church units, view analytics, and access role-appropriate features through an intuitive dashboard interface.
 
-### Role-Based Access Control
-- **Viewer**: Read-only access to assigned units
-- **Unit Leader**: Full access to manage their specific unit (Ward/Branch leadership)
-- **Stake Leader**: Comprehensive access to all units in the stake with admin capabilities
+The purpose of building this software was to master modern web development technologies including Next.js 15, TypeScript, and cloud database integration while implementing enterprise-level security features like Row Level Security (RLS) policies and server-side authentication. This project allowed me to explore advanced concepts such as middleware-based route protection, graceful error handling, and responsive UI design with Tailwind CSS and Radix UI components.
 
-### Authentication & Security
-- Secure authentication with Supabase
-- Row Level Security (RLS) policies
-- Graceful fallback to demo mode when authentication is unavailable
-- Server-side rendering with missing configuration handling
+[Software Demo Video](http://youtube.link.goes.here)
 
-### Dashboard Features
-- **Overview**: Key spiritual indicators and recent activity
-- **Units Management**: View and manage accessible church units
-- **Reports**: Generate role-appropriate reports and analytics
-- **Admin Panel**: User management (Stake Leaders only)
-- **Settings**: Account management and preferences
+# Cloud Database
 
-## 🛠️ Tech Stack
+I am using Supabase as my cloud database solution, which is built on PostgreSQL and provides real-time capabilities, authentication, and Row Level Security (RLS) policies. Supabase offers a complete backend-as-a-service platform that handles user authentication, database management, and API generation automatically.
 
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **UI**: Tailwind CSS, Radix UI components
-- **Authentication**: Supabase Auth
-- **Database**: Supabase (PostgreSQL)
-- **Testing**: Vitest, Testing Library
+The database structure consists of three main tables:
+- **profiles** - Stores user profile information including roles (viewer, unit_leader, stake_leader), display names, and metadata. Each profile is linked to a Supabase auth user.
+- **units** - Contains church organizational units (wards, branches, stakes) with details like unit names, numbers, types, and hierarchical relationships.
+- **user_unit_roles** - A junction table that creates many-to-many relationships between users and units, defining which units each user can access based on their role permissions.
 
-## 📋 Prerequisites
+The database implements Row Level Security policies to ensure users can only access data appropriate to their role level, with Stake Leaders having full access, Unit Leaders accessing only their assigned units, and Viewers having read-only permissions to their designated units.
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account
+# Development Environment
 
-## 🚀 Quick Start
+I used Visual Studio Code as my primary development environment with extensions for TypeScript, React, and Tailwind CSS. The project was developed on Windows using Node.js 18+ and npm for package management. I utilized Git for version control and tested the application locally using Next.js development server.
 
-### 1. Clone and Install
-```bash
-git clone <your-repo>
-cd ziontrack
-npm install
-```
+The programming language used is TypeScript with React 18 and Next.js 15 framework. Key libraries include:
+- **@supabase/supabase-js** and **@supabase/ssr** for cloud database integration and authentication
+- **@radix-ui** component library for accessible UI components
+- **tailwindcss** for utility-first CSS styling
+- **react-hook-form** with **zod** for form validation
+- **vitest** and **@testing-library/react** for unit testing
+- **lucide-react** for icons and **recharts** for data visualization
 
-### 2. Environment Setup
-Create a `.env` file with your Supabase credentials:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-NODE_ENV=development
-```
+# Useful Websites
 
-### 3. Database Setup
-1. Go to your Supabase dashboard → SQL Editor
-2. Run the contents of `supabase-schema.sql` to create tables and policies
-3. Optionally run `scripts/setup-demo-data.sql` for sample data
+- [Supabase Documentation](https://supabase.com/docs) - Comprehensive guide for database setup, authentication, and RLS policies
+- [Next.js App Router Documentation](https://nextjs.org/docs/app) - Essential for understanding server-side rendering and route groups
+- [Radix UI Components](https://www.radix-ui.com/primitives) - Accessible component library documentation and examples
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs) - Utility-first CSS framework reference
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/) - Type system documentation for React development
 
-### 4. Run the Application
-```bash
-npm run dev
-```
+# Future Work
 
-Visit `http://localhost:3000` to see the landing page.
-
-## 📖 Detailed Setup Guide
-
-See `SUPABASE_SETUP.md` for comprehensive setup instructions including:
-- Database schema creation
-- Authentication provider configuration
-- User role management
-- Security policies
-
-## 🧪 Testing
-
-Run the test suite:
-```bash
-npm run test        # Watch mode
-npm run test:run    # Single run
-```
-
-Tests include:
-- Authentication error handling
-- Server-side rendering with missing configuration
-- User service functionality
-- Role-based access control
-
-## 🏗️ Architecture
-
-### Database Schema
-- `profiles` - User profiles with roles and metadata
-- `units` - Church units (wards, branches, stakes)
-- `user_unit_roles` - Many-to-many relationship for user-unit access
-
-### Authentication Flow
-1. Users sign up with email/password and select their church role
-2. Profile is automatically created with role-based permissions
-3. Middleware handles authentication redirects
-4. Graceful fallback to demo mode if Supabase is unavailable
-
-### Role-Based Access
-- **Viewer**: Can view assigned units only
-- **Unit Leader**: Can manage their specific unit's data
-- **Stake Leader**: Can access all units and manage users
-
-## 🔐 Security Features
-
-- Row Level Security (RLS) policies ensure data isolation
-- Server-side authentication validation
-- Secure cookie handling
-- Environment variable validation
-- Graceful error handling
-
-## 📱 User Experience
-
-### Landing Page
-- Role-based feature explanations
-- Secure authentication modal
-- Responsive design
-
-### Dashboard
-- Role-appropriate navigation
-- Real-time data updates
-- Intuitive unit management
-- Comprehensive reporting
-
-### Admin Panel (Stake Leaders Only)
-- User management interface
-- Role assignment tools
-- Permission reference guide
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push
-
-### Other Platforms
-The app works on any platform that supports Next.js:
-- Netlify
-- Railway
-- DigitalOcean App Platform
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For issues and questions:
-1. Check the `SUPABASE_SETUP.md` guide
-2. Review the test files for usage examples
-3. Open an issue on GitHub
-
-## 🎯 Roadmap
-
-- [ ] Mobile app support
-- [ ] Advanced reporting and analytics
-- [ ] Integration with church systems
-- [ ] Multi-language support
-- [ ] Offline functionality
-
----
-
-Built with ❤️ for church leadership everywhere.
+- Implement real-time data synchronization using Supabase subscriptions for live dashboard updates
+- Add comprehensive unit testing coverage for all authentication flows and role-based access scenarios
+- Create mobile-responsive design improvements and consider developing a React Native companion app
+- Integrate advanced analytics and reporting features with data visualization charts and export capabilities
+- Implement audit logging system to track user actions and data changes for administrative oversight

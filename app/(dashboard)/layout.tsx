@@ -4,6 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { getSidebarState } from "@/lib/sidebar-utils"
 import { getCurrentUser } from "@/lib/user-service"
+import { RealtimeNotifications } from "@/components/realtime-notifications"
+import { Toaster } from "sonner"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const currentUser = await getCurrentUser()
@@ -21,6 +23,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <main className="flex-1">
         {children}
       </main>
+      <div className="fixed bottom-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-3 max-w-sm">
+        <RealtimeNotifications />
+      </div>
+      <Toaster position="top-right" />
     </SidebarProvider>
   )
 }

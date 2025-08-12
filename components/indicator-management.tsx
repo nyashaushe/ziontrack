@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getSupabaseBrowser } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +24,7 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
   const [editNotes, setEditNotes] = useState<string>("")
   const [loading, setLoading] = useState(true)
 
-  const supabase = getSupabaseBrowser()
+  const supabase = getSupabaseClient()
 
   // Fetch entries
   const fetchEntries = async () => {

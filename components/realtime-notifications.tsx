@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getSupabaseBrowser } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { Bell } from "lucide-react"
 
@@ -17,7 +17,7 @@ export function RealtimeNotifications() {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const supabase = getSupabaseBrowser()
+    const supabase = getSupabaseClient()
     if (!supabase) return
 
     // Subscribe to changes in indicator_entries table

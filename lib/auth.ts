@@ -8,6 +8,24 @@ export type SessionUser = {
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
+  // Check for demo user first
+  try {
+    const { cookies } = await import("next/headers")
+    const cookieStore = await cookies()
+    const demoUserId = cookieStore.get('demo-user')?.value
+    
+    if (demoUserId) {
+      const { DEMO_USERS } = await import("@/lib/demo-users")
+      const demoUser = DEMO_USERS[demoUserId]
+      if (demoUser) {
+        console.log('[Auth Debug] Demo session found:', demoUser.email)
+        return { id: demoUser.id, email: demoUser.email }
+      }
+    }
+  } catch (error) {
+    // Cookies might not be available in some contexts, continue with normal flow
+  }
+
   const supabase = await getSupabaseServer()
   
   // Return null immediately if supabase client is unavailable

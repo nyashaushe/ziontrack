@@ -13,6 +13,7 @@ import { Loader2, Mail, Lock, User } from "lucide-react"
 import { TempleIcon } from "@/components/icons/temple-icon"
 import { signIn, signUp } from "@/lib/auth-actions"
 import { ROLE_CONFIGS } from "@/types/user"
+import DemoLogin from "@/components/demo-login"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -25,6 +26,7 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showDemo, setShowDemo] = useState(false)
 
   // Form state
   const [email, setEmail] = useState("")
@@ -111,11 +113,25 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={mode} onValueChange={handleModeChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
+        {showDemo ? (
+          <DemoLogin onClose={() => setShowDemo(false)} />
+        ) : (
+          <>
+            <div className="flex justify-center mb-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDemo(true)}
+                className="text-sm"
+              >
+                Try Demo Accounts
+              </Button>
+            </div>
+
+            <Tabs value={mode} onValueChange={handleModeChange} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
 
           <TabsContent value="signin">
             <Card>
@@ -320,6 +336,8 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
             </Card>
           </TabsContent>
         </Tabs>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   )

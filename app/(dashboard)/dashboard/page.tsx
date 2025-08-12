@@ -5,8 +5,9 @@ import Dashboard from "@/components/dashboard"
 export default async function DashboardPage() {
   const currentUser = await getCurrentUser()
   
-  // If no user or demo user, redirect to landing page
-  if (!currentUser || currentUser.id === "demo-user") {
+  // If no user, redirect to landing page
+  // Allow all demo users (including the default "demo-user" and specific demo accounts)
+  if (!currentUser) {
     redirect("/")
   }
   

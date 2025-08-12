@@ -35,13 +35,16 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Check for demo user in cookies
+  const demoUser = request.cookies.get('demo-user')?.value
+  
   // Refresh session if expired - required for Server Components
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!user) {
-      // Redirect to home page if not authenticated
+    if (!user && !demoUser) {
+      // Redirect to home page if not authenticated (no real user or demo user)
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/'
       return NextResponse.redirect(redirectUrl)
@@ -49,7 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from landing page
-  if (request.nextUrl.pathname === '/' && user) {
+  if (request.nextUrl.pathname === '/' && (user || demoUser)) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/dashboard'
     return NextResponse.redirect(redirectUrl)

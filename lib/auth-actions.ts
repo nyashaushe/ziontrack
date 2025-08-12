@@ -18,10 +18,31 @@ function getSupabaseClient() {
 }
 
 export async function signIn(email: string, password: string) {
+  // Check for demo credentials first
+  const { DEMO_CREDENTIALS } = await import("@/lib/demo-users")
+  const demoUser = DEMO_CREDENTIALS.find(cred => 
+    cred.email === email && cred.password === password
+  )
+  
+  if (demoUser) {
+    console.log("[Auth Actions] Demo user signed in:", email)
+    // Store demo user info in cookie for server-side access
+    const { cookies } = await import("next/headers")
+    const cookieStore = await cookies()
+    cookieStore.set('demo-user', demoUser.userId, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+    revalidatePath("/", "layout")
+    return { success: true, user: { email, id: demoUser.userId } }
+  }
+
   const supabase = getSupabaseClient()
   
   if (!supabase) {
-    return { error: "Authentication service is not available. Please try again later." }
+    return { error: "Authentication service is not available. Please try demo accounts." }
   }
 
   try {
@@ -104,6 +125,11 @@ export async function signUp(
 }
 
 export async function signOut() {
+  // Clear demo user cookie if exists
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  cookieStore.delete('demo-user')
+
   const supabase = getSupabaseClient()
   
   if (!supabase) {

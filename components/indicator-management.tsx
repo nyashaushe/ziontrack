@@ -23,64 +23,95 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
   const [editValue, setEditValue] = useState<number>(0)
   const [editNotes, setEditNotes] = useState<string>("")
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const supabase = getSupabaseClient()
 
   // Fetch entries
   const fetchEntries = async () => {
-    if (!supabase) return
-    
-    const { data, error } = await supabase
-      .from("indicator_entries")
-      .select("*")
-      .eq("unit_id", unitId)
-      .order("period_start", { ascending: false })
-      .limit(10)
-
-    if (error) {
-      console.error("Error fetching entries:", error)
-      toast.error("Failed to load entries")
-    } else {
-      setEntries(data || [])
+    if (!supabase) {
+      setError("Database not configured")
+      setLoading(false)
+      return
     }
+    
+    try {
+      const { data, error } = await supabase
+        .from("indicator_entries")
+        .select("*")
+        .eq("unit_id", unitId)
+        .order("period_start", { ascending: false })
+        .limit(10)
+
+      if (error) {
+        console.error("Error fetching entries:", error)
+        setError(`Database error: ${error.message}`)
+        setEntries([])
+      } else {
+        setEntries(data || [])
+        setError(null)
+      }
+    } catch (err) {
+      console.error("Fetch entries exception:", err)
+      setError("Failed to connect to database")
+      setEntries([])
+    }
+    
     setLoading(false)
   }
 
   // UPDATE operation
   const updateEntry = async (id: string, value: number, notes: string) => {
-    if (!supabase) return
+    if (!supabase) {
+      toast.error("Database not configured")
+      return
+    }
 
-    const { error } = await supabase
-      .from("indicator_entries")
-      .update({ value, notes })
-      .eq("id", id)
+    try {
+      const { error } = await supabase
+        .from("indicator_entries")
+        .update({ value, notes })
+        .eq("id", id)
 
-    if (error) {
-      toast.error("Failed to update entry")
-      console.error("Update error:", error)
-    } else {
-      toast.success("Entry updated successfully")
-      setEditingId(null)
-      fetchEntries() // Refresh the list
+      if (error) {
+        toast.error(`Failed to update entry: ${error.message}`)
+        console.error("Update error:", error)
+      } else {
+        toast.success("Entry updated successfully")
+        setEditingId(null)
+        fetchEntries() // Refresh the list
+      }
+    } catch (err) {
+      toast.error("Update failed - connection error")
+      console.error("Update exception:", err)
     }
   }
 
   // DELETE operation
   const deleteEntry = async (id: string) => {
-    if (!supabase) return
     if (!confirm("Are you sure you want to delete this entry?")) return
 
-    const { error } = await supabase
-      .from("indicator_entries")
-      .delete()
-      .eq("id", id)
+    if (!supabase) {
+      toast.error("Database not configured")
+      return
+    }
 
-    if (error) {
-      toast.error("Failed to delete entry")
-      console.error("Delete error:", error)
-    } else {
-      toast.success("Entry deleted successfully")
-      fetchEntries() // Refresh the list
+    try {
+      const { error } = await supabase
+        .from("indicator_entries")
+        .delete()
+        .eq("id", id)
+
+      if (error) {
+        toast.error(`Failed to delete entry: ${error.message}`)
+        console.error("Delete error:", error)
+      } else {
+        toast.success("Entry deleted successfully")
+        fetchEntries() // Refresh the list
+      }
+    } catch (err) {
+      toast.error("Delete failed - connection error")
+      console.error("Delete exception:", err)
     }
   }
 
@@ -106,14 +137,15 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
     fetchEntries()
   }, [unitId])
 
-  if (!supabase) {
+  // Show loading state
+  if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Indicator Management</CardTitle>
+          <CardTitle>Indicator Management (UPDATE & DELETE Operations)</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Database not configured - CRUD operations unavailable</p>
+          <p>Loading entries...</p>
         </CardContent>
       </Card>
     )
@@ -135,15 +167,23 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Indicator Management</CardTitle>
+        <CardTitle>Indicator Management (UPDATE & DELETE Operations)</CardTitle>
         <p className="text-sm text-gray-600">
           Demonstrates UPDATE and DELETE operations on cloud database
         </p>
       </CardHeader>
       <CardContent>
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <p className="font-medium">Database Error:</p>
+            <p className="text-sm">{error}</p>
+            <p className="text-sm mt-1">Please ensure your Supabase database is configured and the tables exist.</p>
+          </div>
+        )}
+        
         <div className="space-y-3">
-          {entries.length === 0 ? (
-            <p className="text-gray-500">No entries found. Add some data first!</p>
+          {entries.length === 0 && !error ? (
+            <p className="text-gray-500">No entries found. Add some data using the form above first!</p>
           ) : (
             entries.map((entry) => (
               <div

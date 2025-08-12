@@ -1,6 +1,7 @@
 "use client"
 
-import { Building2, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
+import { TempleIcon } from "@/components/icons/temple-icon"
 import {
   Sidebar,
   SidebarContent,
@@ -54,7 +55,7 @@ export function AppSidebar({ userRole }: AppSidebarProps) {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600 text-white">
-            <Building2 className="h-6 w-6" />
+            <TempleIcon className="h-6 w-6" size={24} />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Zion Track</h2>

@@ -26,10 +26,24 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     }
   }
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", sessionUser.id).single()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select(`
+      *,
+      unit:units(id, name)
+    `)
+    .eq("id", sessionUser.id)
+    .single()
+  
   const role = (profile?.role as UserRole) ?? "viewer"
 
-  const { data: unitRoles } = await supabase.from("user_unit_roles").select("unit_id").eq("user_id", sessionUser.id)
+  const { data: unitRoles } = await supabase
+    .from("user_unit_roles")
+    .select(`
+      unit_id,
+      units(id, name)
+    `)
+    .eq("user_id", sessionUser.id)
 
   return {
     id: sessionUser.id,

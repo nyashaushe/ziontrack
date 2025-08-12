@@ -1,18 +1,14 @@
-import { DashboardHeader } from "@/components/dashboard-header"
-import { UnitSelector } from "@/components/unit-selector"
-import { MetricsGrid } from "@/components/metrics-grid"
-import { MonthlyProgress } from "@/components/monthly-progress"
-import { SidebarInset } from "@/components/ui/sidebar"
+import { redirect } from "next/navigation"
+import { getCurrentUser } from "@/lib/user-service"
+import LandingPage from "@/components/landing-page"
 
-export default function Dashboard() {
-  return (
-    <SidebarInset className="flex flex-col min-h-screen">
-      <DashboardHeader />
-      <div className="flex-1 p-6 space-y-6 bg-gray-50">
-        <UnitSelector />
-        <MetricsGrid />
-        <MonthlyProgress />
-      </div>
-    </SidebarInset>
-  )
+export default async function HomePage() {
+  const currentUser = await getCurrentUser()
+  
+  // If user is authenticated and has a real account (not demo), redirect to dashboard
+  if (currentUser && currentUser.id !== "demo-user") {
+    redirect("/dashboard")
+  }
+  
+  return <LandingPage />
 }

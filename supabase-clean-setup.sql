@@ -1,33 +1,45 @@
 -- ============================================================================
--- ZionTrack Database Setup Script (FIXED VERSION)
--- Run this entire script in Supabase SQL Editor
+-- ZionTrack CLEAN Database Setup Script
+-- This will completely reset your database with correct UUID structure
 -- ============================================================================
 
 -- ============================================================================
--- 1. DROP EXISTING TABLES (if they exist with wrong types)
+-- 1. COMPLETELY DROP ALL EXISTING TABLES AND FUNCTIONS
 -- ============================================================================
 
+-- Drop all tables in correct order (respecting foreign key dependencies)
 DROP TABLE IF EXISTS indicator_entries CASCADE;
 DROP TABLE IF EXISTS user_unit_roles CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
 DROP TABLE IF EXISTS units CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS mv_rollup_last_90;
+
+-- Drop materialized views
+DROP MATERIALIZED VIEW IF EXISTS mv_rollup_last_90 CASCADE;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS is_stake_leader(uuid) CASCADE;
+DROP FUNCTION IF EXISTS user_has_unit_access(uuid, uuid) CASCADE;
+DROP FUNCTION IF EXISTS user_has_unit_access(uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+
+-- Drop triggers
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
 -- ============================================================================
--- 2. CREATE TABLES WITH CORRECT DATA TYPES
+-- 2. CREATE FRESH TABLES WITH CORRECT UUID STRUCTURE
 -- ============================================================================
 
 -- Create Units table with UUID primary key
 CREATE TABLE units (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  unit_code TEXT UNIQUE NOT NULL, -- Human-readable identifier
+  unit_code TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   type TEXT CHECK (type IN ('ward','branch')) NOT NULL,
   stake TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Create Profiles table (extends Supabase auth.users)
+-- Create Profiles table
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
@@ -58,10 +70,10 @@ CREATE TABLE user_unit_roles (
 );
 
 -- ============================================================================
--- 3. INSERT SAMPLE DATA
+-- 3. INSERT FRESH SAMPLE DATA
 -- ============================================================================
 
--- Insert Harare Zimbabwe South Stake units
+-- Insert Harare Zimbabwe South Stake units with proper structure
 INSERT INTO units (unit_code, name, type, stake) VALUES
 ('harare1-ward', 'Harare 1st Ward', 'ward', 'Harare Zimbabwe South Stake'),
 ('harare2-ward', 'Harare 2nd Ward', 'ward', 'Harare Zimbabwe South Stake'),
@@ -81,7 +93,7 @@ RETURNS BOOLEAN LANGUAGE SQL STABLE AS $$
   SELECT EXISTS(SELECT 1 FROM profiles p WHERE p.id = uid AND p.role = 'stake_leader')
 $$;
 
--- Function to check if user has access to a specific unit
+-- Function to check if user has access to a specific unit (UUID version)
 CREATE OR REPLACE FUNCTION user_has_unit_access(uid UUID, target_unit UUID)
 RETURNS BOOLEAN LANGUAGE SQL STABLE AS $$
   SELECT is_stake_leader(uid)
@@ -101,7 +113,7 @@ ALTER TABLE user_unit_roles ENABLE ROW LEVEL SECURITY;
 -- 6. CREATE RLS POLICIES
 -- ============================================================================
 
--- Units policies (everyone can read units)
+-- Units policies
 CREATE POLICY "Anyone can read units" ON units
 FOR SELECT TO authenticated
 USING (true);
@@ -165,19 +177,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create trigger for automatic profile creation
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+-- Create trigger
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- ============================================================================
--- 8. VERIFICATION
+-- 8. INSERT SAMPLE INDICATOR DATA FOR TESTING
+-- ============================================================================
+
+-- Get a unit ID for sample data
+DO $$
+DECLARE
+    sample_unit_id UUID;
+BEGIN
+    -- Get the first unit's ID
+    SELECT id INTO sample_unit_id FROM units LIMIT 1;
+    
+    -- Insert some sample indicator entries for testing
+    INSERT INTO indicator_entries (unit_id, indicator_key, period_start, value, notes) VALUES
+    (sample_unit_id, 'sacrament_attendance', '2024-01-07', 85, 'Good attendance this week'),
+    (sample_unit_id, 'convert_baptisms', '2024-01-07', 2, 'Two baptisms this week'),
+    (sample_unit_id, 'sacrament_attendance', '2024-01-14', 92, 'Excellent attendance'),
+    (sample_unit_id, 'ministering_interviews', '2024-01-14', 15, 'Monthly ministering interviews');
+END $$;
+
+-- ============================================================================
+-- 9. VERIFICATION AND SUCCESS MESSAGE
 -- ============================================================================
 
 -- Show created tables
 SELECT 
-  'Tables Created Successfully' as status,
+  'Tables Created' as status,
   table_name,
   table_type
 FROM information_schema.tables 
@@ -187,7 +218,7 @@ ORDER BY table_name;
 
 -- Show sample units with their UUIDs
 SELECT 
-  'Sample Units Created' as status,
+  'Sample Units' as status,
   id,
   unit_code,
   name,
@@ -195,8 +226,14 @@ SELECT
 FROM units 
 ORDER BY name;
 
+-- Show sample indicator entries
+SELECT 
+  'Sample Data' as status,
+  COUNT(*) as entry_count
+FROM indicator_entries;
+
 -- Final success message
 SELECT 
-  '✅ DATABASE SETUP COMPLETE!' as status,
-  'Your ZionTrack database is ready.' as message,
-  'Next: Add environment variables and restart your app.' as next_step;
+  '✅ CLEAN DATABASE SETUP COMPLETE!' as status,
+  'All old data removed, fresh structure created' as message,
+  'Your ZionTrack database is ready with UUID structure' as next_step;

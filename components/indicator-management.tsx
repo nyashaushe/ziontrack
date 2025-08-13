@@ -5,6 +5,7 @@ import { getSupabaseClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Trash2, Edit2, Save, X } from "lucide-react"
 import { toast } from "sonner"
 
@@ -17,8 +18,17 @@ interface IndicatorEntry {
   unit_id: string
 }
 
-export function IndicatorManagement({ unitId }: { unitId: string }) {
+interface Unit {
+  id: string
+  unit_code: string
+  name: string
+  type: string
+}
+
+export function IndicatorManagement() {
   const [entries, setEntries] = useState<IndicatorEntry[]>([])
+  const [units, setUnits] = useState<Unit[]>([])
+  const [selectedUnitId, setSelectedUnitId] = useState<string>("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState<number>(0)
   const [editNotes, setEditNotes] = useState<string>("")
@@ -27,10 +37,34 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
 
   const supabase = getSupabaseClient()
 
-  // Fetch entries
+  // Fetch available units
+  const fetchUnits = async () => {
+    if (!supabase) return
+    
+    try {
+      const { data, error } = await supabase
+        .from("units")
+        .select("id, unit_code, name, type")
+        .order("name")
+
+      if (error) {
+        console.error("Error fetching units:", error)
+      } else {
+        setUnits(data || [])
+        // Set first unit as selected if none selected
+        if (data && data.length > 0 && !selectedUnitId) {
+          setSelectedUnitId(data[0].id)
+        }
+      }
+    } catch (err) {
+      console.error("Fetch units exception:", err)
+    }
+  }
+
+  // Fetch entries for selected unit
   const fetchEntries = async () => {
-    if (!supabase) {
-      setError("Database not configured")
+    if (!supabase || !selectedUnitId) {
+      setError("Database not configured or no unit selected")
       setLoading(false)
       return
     }
@@ -39,7 +73,7 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
       const { data, error } = await supabase
         .from("indicator_entries")
         .select("*")
-        .eq("unit_id", unitId)
+        .eq("unit_id", selectedUnitId)
         .order("period_start", { ascending: false })
         .limit(10)
 
@@ -134,8 +168,26 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
   }
 
   useEffect(() => {
-    fetchEntries()
-  }, [unitId])
+    fetchUnits()
+  }, [])
+
+  useEffect(() => {
+    if (selectedUnitId) {
+      fetchEntries()
+    }
+  }, [selectedUnitId])
+
+  // Listen for new entries added
+  useEffect(() => {
+    const handleIndicatorAdded = () => {
+      if (selectedUnitId) {
+        fetchEntries()
+      }
+    }
+
+    window.addEventListener('indicatorAdded', handleIndicatorAdded)
+    return () => window.removeEventListener('indicatorAdded', handleIndicatorAdded)
+  }, [selectedUnitId])
 
   // Show loading state
   if (loading) {
@@ -143,19 +195,6 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
       <Card>
         <CardHeader>
           <CardTitle>Indicator Management (UPDATE & DELETE Operations)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Loading entries...</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Indicator Management</CardTitle>
         </CardHeader>
         <CardContent>
           <p>Loading entries...</p>
@@ -178,6 +217,26 @@ export function IndicatorManagement({ unitId }: { unitId: string }) {
             <p className="font-medium">Database Error:</p>
             <p className="text-sm">{error}</p>
             <p className="text-sm mt-1">Please ensure your Supabase database is configured and the tables exist.</p>
+          </div>
+        )}
+
+        {units.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Unit:
+            </label>
+            <Select value={selectedUnitId} onValueChange={setSelectedUnitId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose a unit..." />
+              </SelectTrigger>
+              <SelectContent>
+                {units.map((unit) => (
+                  <SelectItem key={unit.id} value={unit.id}>
+                    {unit.name} ({unit.type})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
         

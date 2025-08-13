@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { IndicatorEntryForm } from "@/components/forms/indicator-entry-form"
 import { IndicatorManagement } from "@/components/indicator-management"
+import { DatabaseStatus } from "@/components/database-status"
+import { CrudTest } from "@/components/crud-test"
+import { UnitProvider } from "@/components/unit-context"
 import { getCurrentUser } from "@/lib/user-service"
 
 export default async function DataEntry() {
   const currentUser = await getCurrentUser()
-  // Use the first unit ID from user's units, or a default UUID format
-  const unitId = currentUser?.units[0]?.id || "00000000-0000-0000-0000-000000000001"
 
   return (
     <SidebarInset className="flex flex-col min-h-screen">
@@ -23,16 +24,22 @@ export default async function DataEntry() {
 
       <div className="flex-1 p-6 bg-gray-50">
         <div className="max-w-3xl mx-auto space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Indicator Entry (INSERT Operation)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <IndicatorEntryForm />
-            </CardContent>
-          </Card>
+          <DatabaseStatus />
+          
+          <CrudTest />
 
-          <IndicatorManagement unitId={unitId} />
+          <UnitProvider>
+            <Card>
+              <CardHeader>
+                <CardTitle>Add Indicator Entry (INSERT Operation)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <IndicatorEntryForm />
+              </CardContent>
+            </Card>
+
+            <IndicatorManagement />
+          </UnitProvider>
         </div>
       </div>
     </SidebarInset>

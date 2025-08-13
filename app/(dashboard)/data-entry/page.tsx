@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { IndicatorEntryForm } from "@/components/forms/indicator-entry-form"
 import { IndicatorManagement } from "@/components/indicator-management"
-import { DatabaseStatus } from "@/components/database-status"
-import { CrudTest } from "@/components/crud-test"
 import { UnitProvider } from "@/components/unit-context"
 import { getCurrentUser } from "@/lib/user-service"
 
@@ -24,14 +22,11 @@ export default async function DataEntry() {
 
       <div className="flex-1 p-6 bg-gray-50">
         <div className="max-w-3xl mx-auto space-y-6">
-          <DatabaseStatus />
-          
-          <CrudTest />
-
           <UnitProvider>
             <Card>
               <CardHeader>
-                <CardTitle>Add Indicator Entry (INSERT Operation)</CardTitle>
+                <CardTitle>Add Indicator Entry</CardTitle>
+                <p className="text-sm text-gray-600">Submit weekly or monthly indicator data for your unit</p>
               </CardHeader>
               <CardContent>
                 <IndicatorEntryForm />

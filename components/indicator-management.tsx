@@ -206,9 +206,9 @@ export function IndicatorManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Indicator Management (UPDATE & DELETE Operations)</CardTitle>
+        <CardTitle>Manage Indicator Entries</CardTitle>
         <p className="text-sm text-gray-600">
-          Demonstrates UPDATE and DELETE operations on cloud database
+          View, edit, and delete existing indicator entries
         </p>
       </CardHeader>
       <CardContent>

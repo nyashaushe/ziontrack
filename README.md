@@ -6,7 +6,7 @@ ZionTrack is a comprehensive church leadership dashboard that integrates with Su
 
 The purpose of building this software was to master modern web development technologies including Next.js 15, TypeScript, and cloud database integration while implementing enterprise-level security features like Row Level Security (RLS) policies and server-side authentication. This project allowed me to explore advanced concepts such as middleware-based route protection, graceful error handling, and responsive UI design with Tailwind CSS and Radix UI components.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/_Rj8sogb0qA?si=ND3bfc5rJI1uzRtm)
 
 # Cloud Database
 

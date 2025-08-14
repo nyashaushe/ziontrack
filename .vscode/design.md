@@ -26,7 +26,7 @@ The key architectural change is adding proper null checking at the Authenticatio
 - **Behavior**: Return null immediately if supabase client is null
 
 #### Error Handling Pattern
-```typescript
+\`\`\`typescript
 // Before (causes error)
 const supabase = getSupabaseServer()
 if (!supabase) return null
@@ -36,7 +36,7 @@ const { data, error } = await supabase.auth.getUser() // Error: supabase is null
 const supabase = getSupabaseServer()
 if (!supabase) return null
 const { data, error } = await supabase.auth.getUser() // This line never executes when supabase is null
-```
+\`\`\`
 
 ### Unchanged Components
 

@@ -22,13 +22,13 @@
    - **anon public key** (starts with `eyJ`)
 
 3. **Create `.env.local` file** in your project root:
-```env
+\`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=your_project_url_here
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 SUPABASE_URL=your_project_url_here
 SUPABASE_ANON_KEY=your_anon_key_here
 NODE_ENV=development
-```
+\`\`\`
 
 ### **3. Set Up Database Tables**
 
@@ -37,7 +37,7 @@ NODE_ENV=development
 3. **Copy and paste** the following SQL scripts **one at a time**:
 
 #### **Script 1: Create Tables and Basic Data**
-```sql
+\`\`\`sql
 -- Create Units table
 CREATE TABLE IF NOT EXISTS units (
   id TEXT PRIMARY KEY,
@@ -68,12 +68,12 @@ INSERT INTO units (id, name, type, stake) VALUES
 ('ruwa-ward', 'Ruwa Ward', 'ward', 'Harare Zimbabwe South Stake'),
 ('ysa-branch', 'Young Single Adult Branch', 'branch', 'Harare Zimbabwe South Stake')
 ON CONFLICT (id) DO NOTHING;
-```
+\`\`\`
 
 4. **Click "Run"** to execute Script 1
 
 #### **Script 2: Create User Profiles and Permissions**
-```sql
+\`\`\`sql
 -- Create Profiles table
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -103,12 +103,12 @@ RETURNS BOOLEAN LANGUAGE SQL STABLE AS $$
   SELECT is_stake_leader(uid)
   OR EXISTS(SELECT 1 FROM user_unit_roles r WHERE r.user_id = uid AND r.unit_id = target_unit)
 $$;
-```
+\`\`\`
 
 5. **Click "Run"** to execute Script 2
 
 #### **Script 3: Set Up Row Level Security (RLS)**
-```sql
+\`\`\`sql
 -- Enable RLS on all tables
 ALTER TABLE indicator_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -149,7 +149,7 @@ USING (true);
 CREATE POLICY "Stake leaders can manage unit roles" ON user_unit_roles
 FOR ALL TO authenticated
 USING (is_stake_leader(auth.uid()));
-```
+\`\`\`
 
 6. **Click "Run"** to execute Script 3
 
@@ -173,9 +173,9 @@ USING (is_stake_leader(auth.uid()));
 ### **6. Test Your Setup**
 
 1. **Restart your Next.js development server:**
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 2. **Visit** `http://localhost:3000`
 3. **Try signing up** with a test account
@@ -205,7 +205,7 @@ npm run dev
 ### **Verify Database Setup:**
 
 Run this query in Supabase SQL Editor to check your tables:
-```sql
+\`\`\`sql
 -- Check if tables exist
 SELECT table_name 
 FROM information_schema.tables 
@@ -214,7 +214,7 @@ AND table_name IN ('units', 'indicator_entries', 'profiles', 'user_unit_roles');
 
 -- Check sample data
 SELECT * FROM units LIMIT 5;
-```
+\`\`\`
 
 ---
 

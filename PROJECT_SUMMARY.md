@@ -102,12 +102,12 @@ A comprehensive web application for managing church indicator data with role-bas
 ## **🚀 Deployment Ready:**
 
 ### **Environment Variables:**
-```env
+\`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_key
-```
+\`\`\`
 
 ### **Deploy to Vercel:**
 1. Push to GitHub repository

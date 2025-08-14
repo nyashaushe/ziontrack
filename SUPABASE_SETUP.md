@@ -89,13 +89,13 @@ The schema includes these security policies:
 ### Assign Units (Easy Method)
 1. Go to **SQL Editor**
 2. Use the helper functions:
-   ```sql
+   \`\`\`sql
    -- Assign user to all units (for stake leaders)
    SELECT assign_user_to_all_units('user-id-here', 'stake-leader');
    
    -- Assign user to specific unit (for unit leaders)
    SELECT assign_user_to_unit('user-id-here', 'unit-id-here', 'unit-leader');
-   ```
+   \`\`\`
 
 ### Assign Units (Manual Method)
 1. Go to **Table Editor → user_unit_roles**
@@ -117,12 +117,12 @@ The schema includes these security policies:
 ## 6. Environment Variables Checklist
 
 Make sure your `.env` file has:
-```
+\`\`\`
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
-```
+\`\`\`
 
 ## 7. Security Considerations
 
